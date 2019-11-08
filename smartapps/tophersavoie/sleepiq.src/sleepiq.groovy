@@ -42,7 +42,7 @@ def rootPage() {
     section("Settings") {
       input("login", "text", title: "Username", description: "Your SleepIQ username")
       input("password", "password", title: "Password", description: "Your SleepIQ password")
-      input("interval", "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5 minutes"
+      input("interval", "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5 minutes")
     }
     section("Devices") {
       if (devices.size() > 0) {
@@ -138,6 +138,7 @@ def updated() {
 def initialize() {
   log.trace "initialize()"
   getBedData()
+  switch(interval) {  
   case "5 Minutes":
 	log.debug "Setting interval schedule to: 5 minutes"
 	runEvery5Minutes(getBedData)
@@ -165,6 +166,7 @@ def initialize() {
 	default :
 	log.debug "Setting default interval schedule to: 5 minutes"
 	runEvery5Minutes(getBedData)	
+  }
 }
 
 def getBedData() {
