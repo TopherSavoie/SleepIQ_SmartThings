@@ -30,7 +30,7 @@ preferences {
   page name: "findDevicePage"
   page name: "selectDevicePage"
   page name: "createDevicePage"
-  input name: "interval", type: "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5"]
+  
 }
 
 def rootPage() {
@@ -42,6 +42,7 @@ def rootPage() {
     section("Settings") {
       input("login", "text", title: "Username", description: "Your SleepIQ username")
       input("password", "password", title: "Password", description: "Your SleepIQ password")
+      input("interval", "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5 minutes"
     }
     section("Devices") {
       if (devices.size() > 0) {
@@ -137,23 +138,33 @@ def updated() {
 def initialize() {
   log.trace "initialize()"
   getBedData()
-  switch(interval) {
-    case "1 minute" : 
-	runEvery1Minute(getBedData)
-      break
-    case "5 minutes" :
+  case "5 Minutes":
+	log.debug "Setting interval schedule to: 5 minutes"
 	runEvery5Minutes(getBedData)
-      break
-    case "10 minutes" :
+    break
+  case "10 Minutes":
+	log.debug "Setting interval schedule to: 10 minutes"
 	runEvery10Minutes(getBedData)
-      break
-    case "15 minutes" :
+    break
+  case "15 Minutes":
+	log.debug "Setting interval schedule to: 15 minutes"
 	runEvery15Minutes(getBedData)
-      break
-    default:
-        runEvery5Minutes(getBedData)
-      break
-  }	
+    break
+  case "30 Minutes":
+	log.debug "Setting interval schedule to: 30 minutes"
+	runEvery30Minutes(getBedData)
+    break    
+  case "1 Hour":
+	log.debug "Setting interval schedule to: 1 hour"
+	runEvery1Hour(getBedData)
+    break
+  case "3 Hours":
+	log.debug "Setting interval schedule to: 3 hours"
+	runEvery3Hours(getBedData)
+    break            
+	default :
+	log.debug "Setting default interval schedule to: 5 minutes"
+	runEvery5Minutes(getBedData)	
 }
 
 def getBedData() {
