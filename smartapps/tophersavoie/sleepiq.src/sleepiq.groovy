@@ -33,7 +33,7 @@ metadata {
 
 	tiles(scale:2){
         standardTile("switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
-            state "on", label:'RAISED', action:"off", icon:"https://raw.githubusercontent.com/ClassicTim1/SleepNumberManager/master/icons/raisedBed-icn3.png", backgroundColor:"#79b821"
+            state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
             state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
         }
         
