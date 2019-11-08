@@ -13,7 +13,7 @@
  *  for the specific language governing permissions and limitations under the License.
  */
 metadata {
-	definition (name: "Sleep IQ", namespace: "sleepIQ", author: "TopherSavoie", cstHandler: true) {
+	definition (name: "Sleep IQ", namespace: "TopherSavoie", author: "TopherSavoie", cstHandler: true) {
 		capability "Switch Level"
         	capability "Switch"
         	capability "PresenceSensor"
@@ -43,7 +43,7 @@ metadata {
 		valueTile("Side", "device.side", width: 3, height: 1){
         		state "default", label: '${currentValue} Side'
        		}		   
-		valueTile("Presence", "device.PresenceState", width: 3, height: 1){
+		valueTile("Presence", "device.PresenceState", width: 4, height: 4){
         		state "default", label: '${currentValue}'
         	} 
 		main("Presence")
