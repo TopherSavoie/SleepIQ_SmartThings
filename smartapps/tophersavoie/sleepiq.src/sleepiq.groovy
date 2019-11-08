@@ -17,7 +17,7 @@ definition(
     name: "Sleep IQ",
     namespace: "TopherSavoie",
     author: "TopherSavoie",
-    description: "Control your Sleep Number bed vai SmartThings. 
+    description: "Control your Sleep Number bed vai SmartThings.",
     category: "Convenience",
     iconUrl: "https://raw.githubusercontent.com/TopherSavoie/SleepIQ_SmartThings/master/icons/logo.jpg",
     iconX2Url: "https://raw.githubusercontent.com/TopherSavoie/SleepIQ_SmartThings/master/icons/logo.jpg",
