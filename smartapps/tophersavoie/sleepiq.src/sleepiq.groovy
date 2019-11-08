@@ -30,6 +30,7 @@ preferences {
   page name: "findDevicePage"
   page name: "selectDevicePage"
   page name: "createDevicePage"
+  input name: "interval", type: "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5"]
 }
 
 def rootPage() {
@@ -136,6 +137,23 @@ def updated() {
 def initialize() {
   log.trace "initialize()"
   getBedData()
+  switch(interval) {
+    case "1 minute" : 
+	runEvery1Minute(getBedData)
+      break
+    case "5 minutes" :
+	runEvery5Minutes(getBedData)
+      break
+    case "10 minutes" :
+	runEvery10Minutes(getBedData)
+      break
+    case "15 minutes" :
+	runEvery15Minutes(getBedData)
+      break
+    default:
+        runEvery5Minutes(getBedData)
+      break
+  }	
 }
 
 def getBedData() {
@@ -171,9 +189,6 @@ def processBedData(responseData) {
     }
   }
 }
-
-
-
 
 
 private def ApiHost() { "prod-api.sleepiq.sleepnumber.com" }
