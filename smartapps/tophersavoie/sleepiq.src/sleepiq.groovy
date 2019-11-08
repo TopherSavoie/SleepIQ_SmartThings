@@ -191,11 +191,11 @@ def processBedData(responseData) {
       def bedSide = bed.leftSide
       	if(device.currentSide == "Right")
         	bedSide = bed.rightSide
-        def foundationStatus = updateFoundationStatus(device.currentBedId, device.currentSide)
-        String onOff = "off"
-        if(foundationStatus.fsCurrentPositionPresetRight != null && ((device.currentSide == "Right" && foundationStatus.fsCurrentPositionPresetRight != "Flat") || (device.currentSide == "Left" && foundationStatus.fsCurrentPositionPresetLeft != "Flat"))){
-       		onOff = "on"
-        }
+        //def foundationStatus = updateFoundationStatus(device.currentBedId, device.currentSide)
+        //String onOff = "off"
+        //if(foundationStatus.fsCurrentPositionPresetRight != null && ((device.currentSide == "Right" && foundationStatus.fsCurrentPositionPresetRight != "Flat") || (device.currentSide == "Left" && foundationStatus.fsCurrentPositionPresetLeft != "Flat"))){
+       //		onOff = "on"
+        //}
         device.updateData(onOff, bedSide.sleepNumber, bedSide.isInBed)
         break;
       }
