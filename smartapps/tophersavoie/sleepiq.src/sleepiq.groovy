@@ -15,8 +15,8 @@
 metadata {
 	definition (name: "Sleep IQ", namespace: "sleepIQ", author: "TopherSavoie", cstHandler: true) {
 		capability "Switch Level"
-        capability "Switch"
-        capability "PresenceSensor"
+        	capability "Switch"
+        	capability "PresenceSensor"
         
         attribute "bedId", "String"
         attribute "side", "String"
@@ -31,21 +31,23 @@ metadata {
 		// TODO: define status and reply messages here
 	}
 
-	tiles(scale:2){
-        standardTile("switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
-            state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
-            state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
-        }
+	tiles(scale:2){	
+        	standardTile("switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
+            		state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
+            		state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
+        	}
         
-        controlTile("levelSliderControl", "device.level", "slider", height: 4, width: 2) {
+        	controlTile("levelSliderControl", "device.level", "slider", height: 4, width: 2) {
    			state "level", action:"switch level.setLevel"
 		}
 		valueTile("Side", "device.side", width: 3, height: 1){
-        	state "default", label: '${currentValue} Side'
-        }   
+        		state "default", label: '${currentValue} Side'
+       		}		   
 		valueTile("Presence", "device.PresenceState", width: 3, height: 1){
-        	state "default", label: '${currentValue}'
-        } 
+        		state "default", label: '${currentValue}'
+        	} 
+		main("Presence")
+		details("Presence", "switch", "levelSliderControl", "Side")
    //     valueTile("level", "device.level",height:2, width:2, inactiveLabel: false, decoration: "flat") {
 	//		state "level", label: 'Sleep Number: ${currentValue}'
 	//	} 
