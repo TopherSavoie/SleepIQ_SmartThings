@@ -17,7 +17,6 @@ metadata {
 		capability "Switch Level"
         	capability "Switch"
         	capability "PresenceSensor"
-		capability "Polling"
         
         attribute "bedId", "String"
         attribute "side", "String"
