@@ -17,6 +17,7 @@ metadata {
 		capability "Switch Level"
         	capability "Switch"
         	capability "PresenceSensor"
+		capability "Polling"
         
         attribute "bedId", "String"
         attribute "side", "String"
@@ -46,11 +47,12 @@ metadata {
 		valueTile("Presence", "device.PresenceState", width: 4, height: 4){
         		state "default", label: '${currentValue}'
         	} 
+
+                valueTile("level", "device.level",height:2, width:2, inactiveLabel: false, decoration: "flat") {
+			state "level", label: 'Sleep Number: ${currentValue}'
+		} 
 		main("Presence")
 		details("Presence", "switch", "levelSliderControl", "Side")
-   //     valueTile("level", "device.level",height:2, width:2, inactiveLabel: false, decoration: "flat") {
-	//		state "level", label: 'Sleep Number: ${currentValue}'
-	//	} 
     }
 }
 
