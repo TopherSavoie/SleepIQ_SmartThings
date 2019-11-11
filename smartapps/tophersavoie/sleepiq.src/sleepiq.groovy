@@ -347,7 +347,7 @@ private def put(String uri, String body){
     ]
     httpPut(statusParams) { response -> 
       if (response.status == 200) {
-  		getBedData()
+  		//getBedData()
         return true
       } else {
         log.error "[SleepIQ] Put Request failed: "+uri+" : "+body+" : ($response.status) $response.data"
