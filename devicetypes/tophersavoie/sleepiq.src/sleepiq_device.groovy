@@ -27,6 +27,8 @@ metadata {
         
         command "setBedId", ["string"]
         command "setSide", ["string"]
+        command "levelUp" 
+        command "levelDown" 
 	}
 
 
@@ -35,34 +37,62 @@ metadata {
 	}
 
 	tiles(scale:2){	
-        	standardTile("Switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
-              state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
-              state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
-        	}
-        
-        	controlTile("LevelSliderControl", "device.level", "slider", height: 4, width: 2, range:"(0..100)") {
-   			  state "level", action:"switch level.setLevel"
-		    }
+		    //valueTile("Side", "device.side", width: 2, height: 1){
+        	//  state "default", label: '${currentValue} Side'
+       		//}    
+
+            //valueTile("Level", "device.level", width: 4, height: 1, inactiveLabel: false, decoration: "flat") {
+			//  state "level", label: 'Sleep Number: ${currentValue}'
+		    //} 
             
-		    valueTile("Side", "device.side", width: 2, height: 1){
-        	  state "default", label: '${currentValue} Side'
-       		}
             standardTile("Presence", "device.presence", width: 4, height: 4, canChangeBackground: true)
 		    {
               state "present", label: "In Bed", labelIcon:"st.presence.tile.present", backgroundColor:"#00a0dc"
               state "not present", label: "Not in Bed", labelIcon:"st.presence.tile.not-present", backgroundColor:"#ffffff"
-            }            
+            }  
             
-		    //valueTile("Presence", "device.PresenceState", width: 4, height: 4){
-        	//  state "default", label: '${currentValue}'
-        	//} 
+            multiAttributeTile(name:"MultiTile", type:"thermostat", width:6, height:4) {
+                tileAttribute("device.level", key: "PRIMARY_CONTROL") {
+                    attributeState("level", label:'${currentValue}', defaultState: true, backgroundColors:[
+                        [value: 0, color: "#ff0000"],
+                        [value: 20, color: "#ffff00"],
+                        [value: 40, color: "#00ff00"],
+                        [value: 60, color: "#00ffff"],
+                        [value: 80, color: "#0000ff"],
+                        [value: 100, color: "#ff00ff"]
+                    ])
+                }
+                tileAttribute("device.level", key: "VALUE_CONTROL") {
+                    attributeState("VALUE_UP", action: "levelUp")
+                    attributeState("VALUE_DOWN", action: "levelDown")
+                }
+                
+                tileAttribute("device.side", key: "SECONDARY_CONTROL") {
+                    attributeState("default", label: '${currentValue} Side')
+                }                
 
-            valueTile("Level", "device.level", width: 4, height: 1, inactiveLabel: false, decoration: "flat") {
-			  state "level", label: 'Sleep Number: ${currentValue}'
-		    } 
-		    
+                tileAttribute("device.presence", key: "OPERATING_STATE") {
+                  attributeState("present", label: "In Bed", backgroundColor:"#00a0dc")
+                  //attributeState "not present", label: "Not in Bed", backgroundColor:"#00a0dc"
+                  attributeState("not present", label: "Not in Bed", backgroundColor:"#cccccc")
+                }        
+
+            }               
+            
+            //standardTile("Switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
+            //      state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
+            //      state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
+           // }
+
+        	//controlTile("LevelSliderControl", "device.level", "slider", height: 4, width: 2, range:"(0..100)") {
+   			//  state "level", action:"switch level.setLevel"
+		    //}
+            
+          
+            
             main("Presence")
-		    details("Side", "Level", "Presence", "Switch", "LevelSliderControl")
+            details("MultiTile")
+
     }
 }
 
@@ -98,6 +128,18 @@ def setBedId(val){
 
 def setSide(val){
 	sendEvent(name: "side", value: val)
+}
+
+def levelUp(){
+    int newSetpoint = device.currentValue("level")
+    log.info "newSetpoint '${newSetpoint}'"
+	setLevel(newSetpoint+5)
+}
+
+def levelDown(){
+    int newSetpoint = device.currentValue("level")
+    log.info "newSetpoint '${newSetpoint}'"    
+	setLevel(newSetpoint-5)
 }
 
 def on(){
