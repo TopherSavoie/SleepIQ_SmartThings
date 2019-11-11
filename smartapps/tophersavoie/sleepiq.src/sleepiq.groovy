@@ -1,5 +1,5 @@
 /**
- *  Sleep Number Manager
+ *  Sleep IQ for SmartThings
  *
  *  Copyright 2019 Topher Savoie
  *
