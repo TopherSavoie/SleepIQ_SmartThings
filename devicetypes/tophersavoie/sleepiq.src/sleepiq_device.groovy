@@ -37,20 +37,14 @@ metadata {
 	}
 
 	tiles(scale:2){	
-		    //valueTile("Side", "device.side", width: 2, height: 1){
-        	//  state "default", label: '${currentValue} Side'
-       		//}    
-
-            //valueTile("Level", "device.level", width: 4, height: 1, inactiveLabel: false, decoration: "flat") {
-			//  state "level", label: 'Sleep Number: ${currentValue}'
-		    //} 
-            
+            //Used for the main page only, the detal is the PRIMARY_CONTROL attribute and I didnt want that.
             standardTile("Presence", "device.presence", width: 4, height: 4, canChangeBackground: true)
 		    {
-              state "present", label: "In Bed", labelIcon:"st.presence.tile.present", backgroundColor:"#00a0dc"
-              state "not present", label: "Not in Bed", labelIcon:"st.presence.tile.not-present", backgroundColor:"#ffffff"
+              state "present", label: "In Bed", backgroundColor:"#00a0dc"
+              state "not present", label: "Not in Bed", backgroundColor:"#ffffff"
             }  
             
+            //Using thermostat type in order to use the OPERATING_STATE attribute
             multiAttributeTile(name:"MultiTile", type:"thermostat", width:6, height:4) {
                 tileAttribute("device.level", key: "PRIMARY_CONTROL") {
                     attributeState("level", label:'${currentValue}', defaultState: true, backgroundColors:[
@@ -73,22 +67,11 @@ metadata {
 
                 tileAttribute("device.presence", key: "OPERATING_STATE") {
                   attributeState("present", label: "In Bed", backgroundColor:"#00a0dc")
-                  //attributeState "not present", label: "Not in Bed", backgroundColor:"#00a0dc"
                   attributeState("not present", label: "Not in Bed", backgroundColor:"#cccccc")
                 }        
 
             }               
             
-            //standardTile("Switch", "device.switch", width: 4, height: 4, canChangeIcon: false) {
-            //      state "on", label:'RAISED', action:"off", icon:"st.Bedroom.bedroom2", backgroundColor:"#79b821"
-            //      state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
-           // }
-
-        	//controlTile("LevelSliderControl", "device.level", "slider", height: 4, width: 2, range:"(0..100)") {
-   			//  state "level", action:"switch level.setLevel"
-		    //}
-            
-          
             
             main("Presence")
             details("MultiTile")
