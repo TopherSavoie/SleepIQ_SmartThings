@@ -1,7 +1,8 @@
 /**
- *  Sleep Number
+ *  Sleep IQ
  *
  *  Copyright 2019 Topher Savoie
+ *  Forked from: ClassicTim1/SleepNumberManager
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -17,10 +18,10 @@ preferences {
 }
 metadata {
 	definition (name: "Sleep IQ", namespace: "TopherSavoie", author: "TopherSavoie", cstHandler: true) {
-		capability "Switch Level"
+	capability "Switch Level"
         capability "Switch"
-        capability "PresenceSensor"
-        
+        capability "Sleep Sensor"
+    
         attribute "bedId", "String"
         attribute "side", "String"
         
@@ -37,44 +38,52 @@ metadata {
 	}
 
 	tiles(scale:2){	
-            //Used for the main page only, the detal is the PRIMARY_CONTROL attribute and I didnt want that.
-            standardTile("Presence", "device.presence", width: 4, height: 4, canChangeBackground: true)
+            //Used for the main page only, the default is the PRIMARY_CONTROL attribute and I didn't want that.
+            standardTile("Sleep", "device.sleepSensor", canChangeBackground: true)
 		    {
-              state "present", label: "In Bed", backgroundColor:"#00a0dc"
-              state "not present", label: "Not in Bed", backgroundColor:"#ffffff"
+              state "sleeping",  label:'In Bed', backgroundColor:"#00a0dc"
+              state "not sleeping", label:'Not in Bed', backgroundColor:"#cccccc"
             }  
             
-            //Using thermostat type in order to use the OPERATING_STATE attribute
-            multiAttributeTile(name:"MultiTile", type:"thermostat", width:6, height:4) {
+            multiAttributeTile(name:"MultiTile", type:"generic", width:6, height:4) {
                 tileAttribute("device.level", key: "PRIMARY_CONTROL") {
-                    attributeState("level", label:'${currentValue}', defaultState: true, backgroundColors:[
+                    attributeState "level", label:'${currentValue}', defaultState: true, backgroundColors:[
                         [value: 0, color: "#ff0000"],
                         [value: 20, color: "#ffff00"],
                         [value: 40, color: "#00ff00"],
                         [value: 60, color: "#00ffff"],
                         [value: 80, color: "#0000ff"],
                         [value: 100, color: "#ff00ff"]
-                    ])
+                    ]
                 }
-                tileAttribute("device.level", key: "VALUE_CONTROL") {
+                
+                tileAttribute("device", key: "VALUE_CONTROL") {
                     attributeState("VALUE_UP", action: "levelUp")
                     attributeState("VALUE_DOWN", action: "levelDown")
                 }
                 
-                tileAttribute("device.side", key: "SECONDARY_CONTROL") {
-                    attributeState("default", label: '${currentValue} Side')
-                }                
+                tileAttribute("device.sleepSensor", key: "SECONDARY_CONTROL") {
+                  attributeState("not sleeping", label: 'Not in Bed')
+                  attributeState("sleeping",  label: 'In Bed')
+                }   
+            }   
+            standardTile("Foundation", "device.switch", width: 3, height: 3, canChangeIcon: false) {
+              state "on", label:'RAISED', action:"off", icon:"https://raw.githubusercontent.com/TopherSavoie/SleepIQ_SmartThings/master/icons/raisedBed-icn3.png", backgroundColor:"#79b821"
+              state "off", label:'FLAT', action:"on", icon:"st.Bedroom.bedroom2", backgroundColor:"#ffffff"
+            }
+        		   
+            valueTile("Side", "device.side", width: 3, height: 1){
+        	  state "default", label: '${currentValue} Side'
+            }   
 
-                tileAttribute("device.presence", key: "OPERATING_STATE") {
-                  attributeState("present", label: "In Bed", backgroundColor:"#00a0dc")
-                  attributeState("not present", label: "Not in Bed", backgroundColor:"#cccccc")
-                }        
+            valueTile("Note", "device", width: 3, height: 2){
+        	  state "default", label: 'To enable the Adustable Foundation, please go to the device settings and enable it.'
+            }   
 
-            }               
-            
-            
-            main("Presence")
-            details("MultiTile")
+           
+                      
+            main("Sleep")
+            details("MultiTile", "Side", "Foundation", "Note")
 
     }
 }
@@ -82,10 +91,12 @@ metadata {
 def updateData(String state, Integer sleepNumber, boolean present){
 	sendEvent(name: "switch", value: state)
 	sendEvent(name: "level", value: sleepNumber)
-    if(present)
-		sendEvent(name: "presence", value: "present")
-    else
-		sendEvent(name: "presence", value: "not present")
+    if(present) {
+        sendEvent(name: "sleepSensor", value: "sleeping")
+    }
+    else {
+        sendEvent(name: "sleepSensor", value: "not sleeping")
+    }
 }
 
 // parse events into attributes
