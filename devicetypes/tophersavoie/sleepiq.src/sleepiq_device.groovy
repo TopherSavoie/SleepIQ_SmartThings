@@ -18,10 +18,11 @@ preferences {
 }
 metadata {
 	definition (name: "Sleep IQ", namespace: "TopherSavoie", author: "TopherSavoie", cstHandler: true) {
-	capability "Switch Level"
+		capability "Switch Level"
         capability "Switch"
         capability "Sleep Sensor"
-    
+        capability "Presence Sensor"
+        
         attribute "bedId", "String"
         attribute "side", "String"
         
@@ -57,9 +58,9 @@ metadata {
                     ]
                 }
                 
-                tileAttribute("device", key: "VALUE_CONTROL") {
-                    attributeState("VALUE_UP", action: "levelUp")
-                    attributeState("VALUE_DOWN", action: "levelDown")
+                tileAttribute("device.level", key: "VALUE_CONTROL") {
+                    attributeState("VALUE_UP", label:'', action: "levelUp")
+                    attributeState("VALUE_DOWN", label:'', action: "levelDown")
                 }
                 
                 tileAttribute("device.sleepSensor", key: "SECONDARY_CONTROL") {
@@ -93,9 +94,11 @@ def updateData(String state, Integer sleepNumber, boolean present){
 	sendEvent(name: "level", value: sleepNumber)
     if(present) {
         sendEvent(name: "sleepSensor", value: "sleeping")
+        sendEvent(name: "presence", value: "present")
     }
     else {
         sendEvent(name: "sleepSensor", value: "not sleeping")
+        sendEvent(name: "presence", value: "not present")
     }
 }
 
@@ -137,20 +140,24 @@ def levelDown(){
 }
 
 def on(){
-    String side = "L"
-    if(device.latestState('side').stringValue == "Right"){
-    	side = "R"
+    if (foundation) {
+        String side = "L"
+        if(device.latestState('side').stringValue == "Right"){
+            side = "R"
+        }
+        parent.raiseBed(device.latestState('bedId').stringValue, side)
+        sendEvent(name: "switch", value: "on")
     }
-	sendEvent(name: "switch", value: "on")
-    parent.raiseBed(device.latestState('bedId').stringValue, side)
 }
 
 def off(){
-    String side = "L"
-    if(device.latestState('side').stringValue == "Right"){
-    	side = "R"
+    if (foundation) {
+        String side = "L"
+        if(device.latestState('side').stringValue == "Right"){
+            side = "R"
+        }
+        parent.lowerBed(device.latestState('bedId').stringValue, side)
+        sendEvent(name: "switch", value: "off")
     }
-	sendEvent(name: "switch", value: "off")
-    parent.lowerBed(device.latestState('bedId').stringValue, side)
 }
 
