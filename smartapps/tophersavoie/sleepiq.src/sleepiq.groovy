@@ -1,7 +1,8 @@
 /**
- *  Sleep IQ for SmartThings
+ *  Sleep IQ
  *
  *  Copyright 2019 Topher Savoie
+ *  Forked from: ClassicTim1/SleepNumberManager
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
@@ -11,13 +12,12 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
- *
  */
 definition(
     name: "Sleep IQ",
     namespace: "TopherSavoie",
     author: "TopherSavoie",
-    description: "Control your Sleep Number bed vai SmartThings.",
+    description: "Control your Sleep Number bed via SmartThings.",
     category: "Convenience",
     iconUrl: "https://raw.githubusercontent.com/TopherSavoie/SleepIQ_SmartThings/master/icons/logo.jpg",
     iconX2Url: "https://raw.githubusercontent.com/TopherSavoie/SleepIQ_SmartThings/master/icons/logo.jpg",
@@ -42,7 +42,7 @@ def rootPage() {
     section("Settings") {
       input("login", "text", title: "Username", description: "Your SleepIQ username")
       input("password", "password", title: "Password", description: "Your SleepIQ password")
-      input("interval", "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes"], defaultValue: "5 minutes")
+      input("interval", "enum", title: "Polling interval?", options: ["1 minute", "5 minutes", "10 minutes", "15 minutes", "30 minutes", "1 Hour", "3 Hours"], defaultValue: "5 minutes")
     }
     section("Devices") {
       if (devices.size() > 0) {
@@ -137,8 +137,11 @@ def updated() {
 
 def initialize() {
   log.trace "initialize()"
-  getBedData()
   switch(interval) {  
+  case "1 Minutes":
+	log.debug "Setting interval schedule to: 1 minutes"
+	runEvery1Minute(getBedData)
+    break  
   case "5 Minutes":
 	log.debug "Setting interval schedule to: 5 minutes"
 	runEvery5Minutes(getBedData)
@@ -163,10 +166,12 @@ def initialize() {
 	log.debug "Setting interval schedule to: 3 hours"
 	runEvery3Hours(getBedData)
     break            
-	default :
+  default :
 	log.debug "Setting default interval schedule to: 5 minutes"
 	runEvery5Minutes(getBedData)	
   }
+  getBedData()  
+  //getSleepIQData()
 }
 
 def getBedData() {
@@ -181,7 +186,20 @@ def getBedData() {
   return requestData
 }
 
+def getSleepIQData() {
+  log.trace "getSleepIQData()"
+    
+  state.requestData = null
+  updateSleepIQ()
+  while(state.requestData == null) { sleep(100) }
+  def requestData = state.requestData
+  state.requestData = null
+  processSleepIQData(requestData)
+  return requestData
+}
+
 def processBedData(responseData) {
+  log.debug "response data" + responseData
   if (!responseData || responseData.size() == 0) {
     return
   }
@@ -197,13 +215,39 @@ def processBedData(responseData) {
         if(foundationStatus.fsCurrentPositionPresetRight != null && ((device.currentSide == "Right" && foundationStatus.fsCurrentPositionPresetRight != "Flat") || (device.currentSide == "Left" && foundationStatus.fsCurrentPositionPresetLeft != "Flat"))){
           		onOff = "on"
           }
-	}
+	    }
         device.updateData(onOff, bedSide.sleepNumber, bedSide.isInBed)
         break;
       }
     }
   }
 }
+
+def processSleepIQData(responseData) {
+  log.debug "response data" + responseData
+  //if (!responseData || responseData.size() == 0) {
+  //  return
+ // }
+ // for(def device : getChildDevices()) {
+ //   for(def bed : responseData.beds) {
+ //     if (device.currentBedId == bed.bedId) {
+ //     def bedSide = bed.leftSide
+ //     if(device.currentSide == "Right")
+ //       bedSide = bed.rightSide
+ //     String onOff = "off"
+ //     if(device.foundation) {
+ //       def foundationStatus = updateFoundationStatus(device.currentBedId, device.currentSide)        
+ //       if(foundationStatus.fsCurrentPositionPresetRight != null && ((device.currentSide == "Right" && foundationStatus.fsCurrentPositionPresetRight != "Flat") || (device.currentSide == "Left" && foundationStatus.fsCurrentPositionPresetLeft != "Flat"))){
+ //         		onOff = "on"
+ //         }
+//	    }
+//        device.updateData(onOff, bedSide.sleepNumber, bedSide.isInBed)
+//        break;
+//      }
+//    }
+//  }
+}
+
 
 
 private def ApiHost() { "prod-api.sleepiq.sleepnumber.com" }
@@ -222,6 +266,38 @@ private def updateFamilyStatus(alreadyLoggedIn = false) {
   try {
     def statusParams = [
       uri: ApiUriBase() + '/rest/bed/familyStatus?_k=' + state.session?.key,
+      headers: [
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Host': ApiHost(),
+        'User-Agent': ApiUserAgent(),
+        'Cookie': state.session?.cookies,
+        'DNT': '1',
+      ],
+    ]
+    httpGet(statusParams) { response -> 
+      if (response.status == 200) {
+        state.requestData = response.data
+      } else {
+          log.error "[SleepIQ] Error updating family status - Request was unsuccessful: ($response.status) $response.data"
+        state.session = null
+        state.requestData = [:]
+      }
+    }
+  } catch(Exception e) {
+      log.error "[SleepIQ] Error updating family status -  Error ($e)"
+  }
+}
+
+private def updateSleepIQ(alreadyLoggedIn = false) {
+  log.trace "[SleepIQ] Updating Sleep IQ Status"
+  
+  if (needsLogin()) {
+      login()
+  }
+
+  try {
+    def statusParams = [
+      uri: ApiUriBase() + '/rest/sleepData?_=1573585222&_k=' + state.session?.key ,
       headers: [
         'Content-Type': 'application/json;charset=UTF-8',
         'Host': ApiHost(),
